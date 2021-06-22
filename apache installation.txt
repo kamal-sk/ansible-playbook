@@ -1,0 +1,34 @@
+---
+- hosts: node1
+  become: yes
+  become_method: sudo
+  tasks:
+    - name: "Installing httpd package"
+      yum:
+        name: httpd
+        state: present
+        update_cache: yes
+    - name: "Enabling and starting httpd service"
+      ansible.builtin.systemd:
+        name: httpd
+        enabled: yes
+        state: started
+    - name: "Copy application file"
+      copy:
+        src: index.html
+        dest: /var/www/html
+    - name: "Restart httpd service"
+      ansible.builtin.systemd:
+        name: httpd
+        state: restarted
+    - name: "Open http port in firewalld -permanent"
+      firewalld:
+       service: http
+       permanent: yes
+       state: enabled
+    - name: "Open http port in firewalld "
+      firewalld:
+       service: http
+       permanent: no
+       state: enabled
+
